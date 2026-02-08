@@ -493,13 +493,18 @@
                 </div>
                 <div class="form-group">
                     <label for="weather_conditions">Weather Conditions *</label>
-                    <select id="weather_conditions" name="weather_conditions" required>
-                        <option value="Clear">Clear</option>
-                        <option value="Overcast">Overcast</option>
-                        <option value="Light Rain">Light Rain</option>
-                        <option value="Heavy Rain">Heavy Rain</option>
-                        <option value="Snow">Snow</option>
-                    </select>
+                    <div style="display: flex; gap: 10px; margin-bottom: 8px;">
+                        <select id="weather_conditions" name="weather_conditions" required style="flex: 1;">
+                            <option value="Clear">Clear</option>
+                            <option value="Overcast">Overcast</option>
+                            <option value="Light Rain">Light Rain</option>
+                            <option value="Heavy Rain">Heavy Rain</option>
+                            <option value="Snow">Snow</option>
+                        </select>
+                        <button type="button" class="btn btn-next" id="sync-weather-btn"
+                            style="padding: 8px 15px; font-size: 0.75rem; white-space: nowrap;"
+                            onclick="manualWeatherSync()">Sync Weather</button>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label for="temperature">Temperature (°F) *</label>
@@ -1204,11 +1209,30 @@
             const statusDot = document.getElementById('status-dot');
             const overrideBox = document.getElementById('location-override');
             const verifyBtn = document.getElementById('verify-location-btn');
+            const address = document.getElementById('property_address').value;
 
+            // 1. Resolve Target Coordinates (URL > Geocoding)
             if (!targetLat || !targetLng) {
-                alert("Target coordinates missing. Geofencing disabled for this session.");
-                markVerified("Manual - No Target", true);
-                return;
+                if (address && address.length > 5) {
+                    statusText.textContent = "Geocoding address...";
+                    try {
+                        const geoUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`;
+                        const geoRes = await fetch(geoUrl, { headers: { 'User-Agent': 'VicusScoutForm/1.0' } });
+                        const geoData = await geoRes.json();
+
+                        if (geoData && geoData.length > 0) {
+                            targetLat = parseFloat(geoData[0].lat);
+                            targetLng = parseFloat(geoData[0].lon);
+                            console.log(`Target set via geocoding: ${targetLat}, ${targetLng}`);
+                        } else {
+                            throw new Error("Address not found");
+                        }
+                    } catch (err) {
+                        alert("Could not determine target coordinates from address. Geofencing may be inaccurate.");
+                    }
+                } else {
+                    alert("No target coordinates or address provided. Verification may fail.");
+                }
             }
 
             statusText.textContent = "Acquiring GPS signal...";
@@ -1218,12 +1242,18 @@
                 async (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    const dist = calculateDistance(lat, lng, targetLat, targetLng);
 
-                    const isWithinRange = dist <= 30.48; // 100 feet in meters
+                    let isWithinRange = true;
+                    let dist = 0;
+
+                    if (targetLat && targetLng) {
+                        dist = calculateDistance(lat, lng, targetLat, targetLng);
+                        isWithinRange = dist <= 30.48; // 100 feet in meters
+                    }
 
                     if (isWithinRange) {
-                        statusText.textContent = `Verified: Within ${Math.round(dist * 3.281)}ft of target.`;
+                        const distSuffix = (targetLat && targetLng) ? `Within ${Math.round(dist * 3.281)}ft.` : "Location acquired.";
+                        statusText.textContent = `Verified: ${distSuffix}`;
                         statusDot.className = "status-dot success";
                         markVerified("GPS", true);
                         overrideBox.style.display = 'none';
@@ -1246,6 +1276,25 @@
                     verifyBtn.disabled = false;
                 },
                 { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        async function manualWeatherSync() {
+            const btn = document.getElementById('sync-weather-btn');
+            btn.disabled = true;
+            btn.textContent = "Syncing...";
+
+            navigator.geolocation.getCurrentPosition(
+                async (pos) => {
+                    await fetchWeather(pos.coords.latitude, pos.coords.longitude);
+                    btn.disabled = false;
+                    btn.textContent = "Sync Weather";
+                },
+                (err) => {
+                    alert("Location access required for weather sync.");
+                    btn.disabled = false;
+                    btn.textContent = "Sync Weather";
+                }
             );
         }
 
