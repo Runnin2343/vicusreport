@@ -3,6 +3,7 @@ deployment:
   tasks:
     - export DEPLOYPATH=/home/vicuectl/public_html/
     - /bin/cp index.html $DEPLOYPATH
+    - /bin/cp scout-form.html $DEPLOYPATH
     - /bin/cp style.css $DEPLOYPATH
     - /bin/cp main.js $DEPLOYPATH
     - /bin/cp .htaccess $DEPLOYPATH
