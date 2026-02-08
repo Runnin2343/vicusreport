@@ -853,10 +853,6 @@
 
                         <div class="network-audit-card">
                             <div class="network-stat">
-                                <span class="stat-label">Connection IP</span>
-                                <span class="stat-value" id="net-ip">--</span>
-                            </div>
-                            <div class="network-stat">
                                 <span class="stat-label">Provider (ISP)</span>
                                 <span class="stat-value" id="net-isp">--</span>
                             </div>
@@ -1049,21 +1045,7 @@
         }
 
         function shouldSkipPage(pg) {
-            const tier = document.getElementById('tier_level').value;
-            const visit = document.getElementById('visit_number').value;
-
-            // Page 8: Comparative Analysis (Standard Tier - Visit 3 Only)
-            if (pg === 8) {
-                return !(tier.includes('Standard') && visit === '3');
-            }
-            // Page 9: Client Questions (Deep Dive - Visits 3, 4, 5)
-            if (pg === 9) {
-                return !(tier.includes('Deep Dive') && ['3', '4', '5'].includes(visit));
-            }
-            // Page 10: Infrastructure (Deep Dive Only)
-            if (pg === 10) {
-                return !tier.includes('Deep Dive');
-            }
+            // Unified Form: No pages are skipped regardless of tier/visit
             return false;
         }
 
@@ -1217,7 +1199,7 @@
             return R * c; // Distance in meters
         }
 
-        function verifyLocation() {
+        async function verifyLocation() {
             const statusText = document.getElementById('status-text');
             const statusDot = document.getElementById('status-dot');
             const overrideBox = document.getElementById('location-override');
@@ -1233,13 +1215,10 @@
             verifyBtn.disabled = true;
 
             navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const dist = calculateDistance(
-                        position.coords.latitude,
-                        position.coords.longitude,
-                        targetLat,
-                        targetLng
-                    );
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const dist = calculateDistance(lat, lng, targetLat, targetLng);
 
                     const isWithinRange = dist <= 30.48; // 100 feet in meters
 
@@ -1248,6 +1227,9 @@
                         statusDot.className = "status-dot success";
                         markVerified("GPS", true);
                         overrideBox.style.display = 'none';
+
+                        // Auto-fetch weather upon successful location verification
+                        await fetchWeather(lat, lng);
                     } else {
                         statusText.textContent = `Error: ${Math.round(dist * 3.281)}ft from target (Limit 100ft).`;
                         statusDot.className = "status-dot error";
@@ -1265,6 +1247,41 @@
                 },
                 { enableHighAccuracy: true, timeout: 10000 }
             );
+        }
+
+        async function fetchWeather(lat, lng) {
+            const weatherSelect = document.getElementById('weather_conditions');
+            const tempInput = document.getElementById('temperature');
+            const statusText = document.getElementById('status-text');
+
+            const originalText = statusText.textContent;
+            statusText.textContent = originalText + " (Fetching weather...)";
+
+            try {
+                const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data && data.current) {
+                    const temp = Math.round(data.current.temperature_2m);
+                    const code = data.current.weather_code;
+
+                    tempInput.value = temp;
+
+                    // Open-Meteo WMO weather code mapping
+                    if (code === 0) weatherSelect.value = "Clear";
+                    else if ([1, 2, 3].includes(code)) weatherSelect.value = "Overcast";
+                    else if ([51, 53, 55, 61, 63].indexOf(code) !== -1) weatherSelect.value = "Light Rain";
+                    else if ([65, 80, 81, 82, 95, 96, 99].indexOf(code) !== -1) weatherSelect.value = "Heavy Rain";
+                    else if ([71, 73, 75, 77, 85, 86].indexOf(code) !== -1) weatherSelect.value = "Snow";
+                    else weatherSelect.value = "Clear"; // Fallback
+
+                    statusText.textContent = originalText + " (Weather Synced)";
+                }
+            } catch (err) {
+                console.error("Weather fetch failed", err);
+                statusText.textContent = originalText + " (Weather service unavailable)";
+            }
         }
 
         function markVerified(method, isValid) {
@@ -1372,7 +1389,6 @@
             const latencyEl = document.getElementById('net-latency');
             const speedEl = document.getElementById('net-speed');
             const uploadEl = document.getElementById('net-upload');
-            const ipEl = document.getElementById('net-ip');
             const ispEl = document.getElementById('net-isp');
             const progress = document.getElementById('net-progress');
             const signalSelect = document.getElementById('cell_signal_1');
@@ -1382,14 +1398,12 @@
             progress.style.width = "5%";
 
             try {
-                // 1. IP & ISP Detection
+                // 1. ISP Detection
                 try {
                     const ipResponse = await fetch('https://ipapi.co/json/');
                     const ipData = await ipResponse.json();
-                    ipEl.textContent = ipData.ip || 'Unknown';
                     ispEl.textContent = ipData.org || 'Unknown';
                 } catch (e) {
-                    ipEl.textContent = 'Blocked/Failed';
                     ispEl.textContent = 'Unknown';
                 }
                 progress.style.width = "20%";
