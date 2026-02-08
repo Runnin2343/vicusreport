@@ -1,0 +1,1416 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow">
+    <title>Vicus Scout Field Observation Form</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #fbbf24;
+            --accent: #14b8a6;
+            --accent-red: #ef4444;
+            --text-dark: #1e293b;
+            --text-light: #64748b;
+            --white: #ffffff;
+            --bg-light: #f8fafc;
+            --border: #e2e8f0;
+            --input-border: #cbd5e1;
+            --section-bg: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: #f1f5f9;
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 40px auto;
+            background: var(--white);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        header {
+            background: var(--primary);
+            color: var(--white);
+            padding: 30px 40px;
+            border-bottom: 4px solid var(--secondary);
+        }
+
+        header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            background: var(--bg-light);
+            height: 8px;
+            width: 100%;
+            display: flex;
+        }
+
+        .progress-fill {
+            background: var(--accent);
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .page {
+            padding: 40px;
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .page-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 10px;
+        }
+
+        .page-desc {
+            font-size: 0.9rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .field-description {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="datetime-local"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--input-border);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(20, 184, 166, 0.1);
+        }
+
+        input[readonly] {
+            background-color: #f1f5f9;
+            cursor: not-allowed;
+        }
+
+        .checkbox-group,
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .checkbox-item,
+        .radio-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .checkbox-item input,
+        .radio-item input {
+            margin-top: 5px;
+            transform: scale(1.2);
+        }
+
+        .navigation {
+            padding: 20px 40px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-prev {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-next {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-submit {
+            background: var(--accent);
+            color: var(--white);
+        }
+
+        .btn-preview {
+            background: var(--secondary);
+            color: var(--primary);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Geofencing Styles */
+        .geofence-container {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8fafc;
+            margin-top: 20px;
+        }
+
+        .geofence-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #cbd5e1;
+        }
+
+        .status-dot.success {
+            background: var(--accent);
+        }
+
+        .status-dot.error {
+            background: var(--accent-red);
+        }
+
+        .override-box {
+            margin-top: 15px;
+            padding: 12px;
+            border: 1px dashed var(--accent-red);
+            border-radius: 6px;
+            display: none;
+        }
+
+        /* Decibel Meter Styles */
+        .meter-container {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            color: var(--white);
+        }
+
+        .meter-bar-bg {
+            height: 12px;
+            background: #334155;
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .meter-bar-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #14b8a6, #fbbf24, #ef4444);
+            transition: width 0.1s ease;
+        }
+
+        .meter-value {
+            font-family: monospace;
+            font-size: 1.2rem;
+            text-align: right;
+            color: var(--secondary);
+        }
+
+        /* Network Audit Styles */
+        .network-audit-card {
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+        }
+
+        .network-stat {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .stat-label {
+            color: #64748b;
+        }
+
+        .stat-value {
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .speed-progress-bg {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .speed-progress-fill {
+            height: 100%;
+            width: 0%;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        /* Validation Feedback Styles */
+        .error-state {
+            border-color: var(--accent-red) !important;
+            background-color: #fff1f2 !important;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1) !important;
+        }
+
+        .error-msg {
+            color: var(--accent-red);
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-top: 5px;
+            display: block;
+        }
+
+        /* Media Upload Simulation */
+        .file-input-container {
+            border: 2px dashed var(--input-border);
+            padding: 20px;
+            text-align: center;
+            border-radius: 6px;
+            background: #fff;
+        }
+
+        /* Modal Preview */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #fff;
+            width: 100%;
+            max-width: 850px;
+            max-height: 90vh;
+            border-radius: 12px;
+            overflow-y: auto;
+            padding: 60px;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .apa-header {
+            text-align: center;
+            margin-bottom: 40px;
+            border-bottom: 1px solid #000;
+            padding-bottom: 20px;
+        }
+
+        .apa-body h4 {
+            margin: 20px 0 10px;
+            text-decoration: underline;
+        }
+
+        .apa-body p {
+            margin-bottom: 15px;
+            text-indent: 50px;
+        }
+
+        @media (max-width: 600px) {
+            .form-container {
+                margin: 0;
+                border-radius: 0;
+            }
+
+            .page {
+                padding: 20px;
+            }
+
+            .navigation {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="form-container">
+        <header>
+            <h1>Vicus Scout Field Observation Form</h1>
+            <p>Maintain factual, observation-based language throughout.</p>
+        </header>
+
+        <div class="progress-bar">
+            <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+        </div>
+
+        <form id="scout-form">
+            <!-- Page 1: Metadata -->
+            <div class="page active" id="page_1">
+                <div class="page-title">I. Visit Information</div>
+                <div class="form-group">
+                    <label for="scout_name">Scout Name/ID *</label>
+                    <input type="text" id="scout_name" name="scout_name" placeholder="Enter your name or scout ID"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="property_address">Property Address *</label>
+                    <input type="text" id="property_address" name="property_address"
+                        placeholder="123 Main St, Denver, CO 80202" required>
+                </div>
+                <div class="form-group">
+                    <label for="tier_level">Service Tier *</label>
+                    <select id="tier_level" name="tier_level" onchange="updateVisitNumbers()" required>
+                        <option value="">Select Tier</option>
+                        <option value="Snapshot (1 visit)">Snapshot (1 visit)</option>
+                        <option value="Standard (3 visits)">Standard (3 visits)</option>
+                        <option value="Deep Dive (5 visits)">Deep Dive (5 visits)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="visit_number">Visit Number *</label>
+                    <select id="visit_number" name="visit_number" required>
+                        <option value="">Select Visit Number</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="observation_datetime">Date & Time of Observation *</label>
+                    <input type="datetime-local" id="observation_datetime" name="observation_datetime" required>
+                </div>
+                <div class="form-group">
+                    <label for="observation_window">Observation Window *</label>
+                    <select id="observation_window" name="observation_window" required>
+                        <option value="Weekend Evening">Weekend Evening</option>
+                        <option value="Weekday Morning">Weekday Morning</option>
+                        <option value="Weekday Midday">Weekday Midday</option>
+                        <option value="Weekday Evening">Weekday Evening</option>
+                        <option value="Custom (specified by client)">Custom (specified by client)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="weather_conditions">Weather Conditions *</label>
+                    <select id="weather_conditions" name="weather_conditions" required>
+                        <option value="Clear">Clear</option>
+                        <option value="Overcast">Overcast</option>
+                        <option value="Light Rain">Light Rain</option>
+                        <option value="Heavy Rain">Heavy Rain</option>
+                        <option value="Snow">Snow</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="temperature">Temperature (°F) *</label>
+                    <input type="number" id="temperature" name="temperature" placeholder="65" required>
+                </div>
+
+                <!-- Geofencing Integration -->
+                <div class="geofence-container">
+                    <label>Location Verification *</label>
+                    <p class="field-description">Verification within 100ft of the target property is required.</p>
+                    <button type="button" class="btn btn-next" id="verify-location-btn"
+                        onclick="verifyLocation()">Verify Current Location</button>
+
+                    <div id="geofence-status" class="geofence-status">
+                        <div id="status-dot" class="status-dot"></div>
+                        <span id="status-text">Location not verified</span>
+                    </div>
+
+                    <div id="location-override" class="override-box">
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="gps_override_toggle" onchange="toggleOverrideReason()"> Enable
+                            Manual Location Override
+                        </label>
+                        <div id="override_reason_container" class="hidden" style="margin-top: 10px;">
+                            <label for="gps_override_reason">Reason for Override (e.g., poor signal) *</label>
+                            <textarea id="gps_override_reason" name="gps_override_reason" rows="2"
+                                placeholder="Explain why GPS verification is unavailable..."></textarea>
+                        </div>
+                    </div>
+                    <input type="hidden" id="location_verified" name="location_verified" value="false">
+                    <input type="hidden" id="verification_method" name="verification_method" value="GPS">
+                </div>
+            </div>
+
+            <!-- Page 2: Noise -->
+            <div class="page" id="page_2">
+                <div class="page-title">II. Noise Observations</div>
+                <p class="page-desc">Use a smartphone decibel meter app (e.g., Decibel X, Sound Meter) to measure
+                    ambient noise levels.</p>
+                <div class="form-group">
+                    <label>Integrated Noise Assessment *</label>
+                    <p class="field-description">Capture a 30-second environmental sample directly in the form.</p>
+
+                    <div class="meter-container">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Real-time Level</span>
+                            <div class="meter-value"><span id="live-db">0</span> dB</div>
+                        </div>
+                        <div class="meter-bar-bg">
+                            <div id="meter-fill" class="meter-bar-fill"></div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #94a3b8;">
+                            <span>0dB</span>
+                            <span>50dB</span>
+                            <span>100dB+</span>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-next" id="start-noise-btn"
+                        onclick="startNoiseMeasurement()">Start 30s Measurement</button>
+                    <p id="noise-timer" class="field-description" style="margin-top: 8px; font-weight: 500;"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="noise_baseline_db">Ambient Noise Level - Baseline (dB) *</label>
+                    <span class="field-description">Auto-captured average baseline level</span>
+                    <input type="number" id="noise_baseline_db" name="noise_baseline_db" placeholder="45" required
+                        readonly>
+                </div>
+                <div class="form-group">
+                    <label for="noise_peak_db">Ambient Noise Level - Peak (dB) *</label>
+                    <span class="field-description">Auto-captured highest transient peak</span>
+                    <input type="number" id="noise_peak_db" name="noise_peak_db" placeholder="68" required readonly>
+                </div>
+                <div class="form-group">
+                    <label>Primary Noise Sources Observed *</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" name="noise_sources" value="Traffic"
+                                required>
+                            Traffic</label>
+                        <label class="checkbox-item"><input type="checkbox" name="noise_sources" value="Music (indoor)">
+                            Music (indoor)</label>
+                        <label class="checkbox-item"><input type="checkbox" name="noise_sources"
+                                value="Music (outdoor/amplified)"> Music (outdoor/amplified)</label>
+                        <label class="checkbox-item"><input type="checkbox" name="noise_sources"
+                                value="Voices/conversations"> Voices/conversations</label>
+                        <label class="checkbox-item"><input type="checkbox" name="noise_sources" value="Dogs barking">
+                            Dogs barking</label>
+                        <label class="checkbox-item"><input type="checkbox" name="noise_sources" value="Construction">
+                            Construction</label>
+                        <label class="checkbox-item"><input type="checkbox" name="noise_sources" value="Aircraft">
+                            Aircraft</label>
+                        <label class="checkbox-item"><input type="checkbox" name="noise_sources"
+                                value="Emergency vehicles"> Emergency vehicles</label>
+                        <label class="checkbox-item"><input type="checkbox" name="noise_sources" value="Other"
+                                onchange="toggleNoiseOther()"> Other</label>
+                    </div>
+                </div>
+                <div class="form-group hidden" id="noise_other_container">
+                    <label for="noise_sources_other">If 'Other' selected, please specify</label>
+                    <input type="text" id="noise_sources_other" name="noise_sources_other">
+                </div>
+                <div class="form-group">
+                    <label for="traffic_volume">Traffic Volume (vehicles per 10 minutes) *</label>
+                    <span class="field-description">Count all passing vehicles for 10 minutes</span>
+                    <input type="number" id="traffic_volume" name="traffic_volume" placeholder="24" required>
+                </div>
+            </div>
+
+            <!-- Page 3: Parking -->
+            <div class="page" id="page_3">
+                <div class="page-title">III. Parking Observations</div>
+                <p class="page-desc">Document parking conditions within 100 feet of the property.</p>
+                <div class="form-group">
+                    <label for="parking_total_spaces">Total Visible On-Street Parking Spaces (within 100ft) *</label>
+                    <input type="number" id="parking_total_spaces" name="parking_total_spaces" placeholder="12"
+                        oninput="calculateParkingRate()" required>
+                </div>
+                <div class="form-group">
+                    <label for="parking_occupied_spaces">Occupied Parking Spaces *</label>
+                    <input type="number" id="parking_occupied_spaces" name="parking_occupied_spaces" placeholder="9"
+                        oninput="calculateParkingRate()" required>
+                </div>
+                <div class="form-group">
+                    <label for="parking_occupancy_rate">Occupancy Rate (%)</label>
+                    <span class="field-description">Auto-calculated: (Occupied / Total) × 100</span>
+                    <input type="number" id="parking_occupancy_rate" name="parking_occupancy_rate" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="parking_violations">Vehicles Double-Parked or Blocking Access *</label>
+                    <input type="number" id="parking_violations" name="parking_violations" placeholder="0" required>
+                </div>
+                <div class="form-group">
+                    <label>Does property have driveway parking? *</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="property_driveway" value="Yes"
+                                onchange="toggleDrivewaySpaces()" required> Yes</label>
+                        <label class="radio-item"><input type="radio" name="property_driveway" value="No"
+                                onchange="toggleDrivewaySpaces()"> No</label>
+                    </div>
+                </div>
+                <div class="form-group hidden" id="driveway_spaces_container">
+                    <label for="property_driveway_spaces">Number of driveway parking spaces</label>
+                    <input type="number" id="property_driveway_spaces" name="property_driveway_spaces">
+                </div>
+            </div>
+
+            <!-- Page 4: Street Activity -->
+            <div class="page" id="page_4">
+                <div class="page-title">IV. Street Activity Observations</div>
+                <div class="form-group">
+                    <label for="pedestrian_count">Pedestrian Count (10-minute sample) *</label>
+                    <span class="field-description">Count pedestrians passing within view for 10 minutes</span>
+                    <input type="number" id="pedestrian_count" name="pedestrian_count" placeholder="8" required>
+                </div>
+                <div class="form-group">
+                    <label for="gatherings_count">Observed Gatherings (3+ people) *</label>
+                    <span class="field-description">Count distinct groups of 3 or more people</span>
+                    <input type="number" id="gatherings_count" name="gatherings_count" placeholder="1" required>
+                </div>
+                <div class="form-group">
+                    <label>Commercial Activity Visible</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item"><input type="checkbox" name="commercial_activity"
+                                value="Food trucks"> Food trucks</label>
+                        <label class="checkbox-item"><input type="checkbox" name="commercial_activity"
+                                value="Street vendors"> Street vendors</label>
+                        <label class="checkbox-item"><input type="checkbox" name="commercial_activity"
+                                value="Outdoor dining"> Outdoor dining</label>
+                        <label class="checkbox-item"><input type="checkbox" name="commercial_activity"
+                                value="None observed"> None observed</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 5: Lighting -->
+            <div class="page" id="page_5">
+                <div class="page-title">V. Lighting Conditions</div>
+                <p class="page-desc">Complete only if observation occurred during evening/night hours.</p>
+                <div class="form-group">
+                    <label>Is this an evening/night visit? *</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="lighting_applicable" value="Yes"
+                                onchange="toggleLightingFields()" required> Yes</label>
+                        <label class="radio-item"><input type="radio" name="lighting_applicable" value="No"
+                                onchange="toggleLightingFields()"> No</label>
+                    </div>
+                </div>
+                <div id="lighting_fields" class="hidden">
+                    <div class="form-group">
+                        <label for="street_lighting">Street Lighting Condition</label>
+                        <select id="street_lighting" name="street_lighting">
+                            <option value="">Select option</option>
+                            <option value="Well-lit (bright, even coverage)">Well-lit (bright, even coverage)</option>
+                            <option value="Moderately lit (adequate but not bright)">Moderately lit (adequate but not
+                                bright)</option>
+                            <option value="Poorly lit (dim or spotty coverage)">Poorly lit (dim or spotty coverage)
+                            </option>
+                            <option value="No street lights present">No street lights present</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="property_lighting">Property Exterior Lighting</label>
+                        <select id="property_lighting" name="property_lighting">
+                            <option value="">Select option</option>
+                            <option value="Well-lit">Well-lit</option>
+                            <option value="Moderately lit">Moderately lit</option>
+                            <option value="Dark/no visible lighting">Dark/no visible lighting</option>
+                            <option value="Not visible from street">Not visible from street</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 6: Qualitative -->
+            <div class="page" id="page_6">
+                <div class="page-title">VI. Qualitative Observations</div>
+                <p class="page-desc">Use neutral, factual language. Describe what you observed without judgment.</p>
+                <div class="form-group">
+                    <label for="general_character">General Street Character (100-word limit) *</label>
+                    <span class="field-description">Describe the overall character of the street/block in neutral
+                        terms.</span>
+                    <textarea id="general_character" name="general_character" rows="5" maxlength="600"
+                        placeholder="The block consists primarily of single-family homes..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Notable Conditions Observed</label>
+                    <div class="checkbox-group" id="notable_conditions_group">
+                        <label class="checkbox-item"><input type="checkbox" name="notable_conditions"
+                                value="Unattended trash/debris visible" onchange="toggleNotableDetails()"> Unattended
+                            trash/debris visible</label>
+                        <label class="checkbox-item"><input type="checkbox" name="notable_conditions"
+                                value="Maintenance issues observed" onchange="toggleNotableDetails()"> Maintenance
+                            issues observed</label>
+                        <label class="checkbox-item"><input type="checkbox" name="notable_conditions"
+                                value="Active construction nearby" onchange="toggleNotableDetails()"> Active
+                            construction nearby</label>
+                        <label class="checkbox-item"><input type="checkbox" name="notable_conditions"
+                                value="Emergency vehicles observed during visit" onchange="toggleNotableDetails()">
+                            Emergency vehicles observed during visit</label>
+                        <label class="checkbox-item"><input type="checkbox" name="notable_conditions"
+                                value="Other notable observations" onchange="toggleNotableDetails()"> Other notable
+                            observations</label>
+                    </div>
+                </div>
+                <div class="form-group hidden" id="notable_details_container">
+                    <label for="notable_conditions_details">Details of Notable Conditions (50-word limit)</label>
+                    <textarea id="notable_conditions_details" name="notable_conditions_details" rows="3"
+                        maxlength="300"></textarea>
+                </div>
+            </div>
+
+            <!-- Page 7: Media -->
+            <div class="page" id="page_7">
+                <div class="page-title">VII. Media Capture</div>
+                <p class="page-desc">Upload required photos and optional audio/video documentation.</p>
+                <div class="form-group">
+                    <label>Photo 1: Street view facing property *</label>
+                    <div class="file-input-container">
+                        <input type="file" name="photo_street_view" accept="image/*" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Photo 2: View to the left of property *</label>
+                    <div class="file-input-container">
+                        <input type="file" name="photo_view_left" accept="image/*" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Photo 3: View to the right of property *</label>
+                    <div class="file-input-container">
+                        <input type="file" name="photo_view_right" accept="image/*" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Additional Photos (optional, up to 5)</label>
+                    <div class="file-input-container">
+                        <input type="file" name="photos_additional" accept="image/*" multiple>
+                    </div>
+                </div>
+                <div class="form-group" id="ambient_media_container">
+                    <label>Ambient Audio/Video Clip (30-60 seconds)</label>
+                    <span class="field-description">Required for Standard and Deep Dive tiers.</span>
+                    <span class="field-description"
+                        style="color: var(--accent-red); font-weight: 500; margin-top: 5px;">
+                        <strong>LEGAL NOTICE:</strong> Documentation must strictly record environmental acoustic
+                        profiles (traffic, construction, etc.). Please avoid capturing identifiable private
+                        conversations to ensure compliance with wiretapping and privacy regulations.
+                    </span>
+                    <div class="file-input-container">
+                        <input type="file" id="ambient_media" name="ambient_media" accept="audio/*,video/*">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 8: Comparative (Conditional) -->
+            <div class="page" id="page_8">
+                <div class="page-title">VIII. Comparative Analysis (Standard Tier - Visit 3)</div>
+                <p class="page-desc">Complete only on Visit 3 of Standard tier assignments.</p>
+                <div class="form-group">
+                    <label for="comparative_noise">Noise Pattern Summary (150-word limit) *</label>
+                    <textarea id="comparative_noise" name="comparative_noise" rows="5" maxlength="900"
+                        placeholder="Visit 1: ... Visit 2: ..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="comparative_parking">Parking Pattern Summary (100-word limit) *</label>
+                    <textarea id="comparative_parking" name="comparative_parking" rows="4" maxlength="600"
+                        placeholder="Parking occupancy trends..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="comparative_activity">Activity Pattern Summary (100-word limit) *</label>
+                    <textarea id="comparative_activity" name="comparative_activity" rows="4" maxlength="600"
+                        placeholder="Street activity differences..."></textarea>
+                </div>
+            </div>
+
+            <!-- Page 9: Client Questions (Conditional) -->
+            <div class="page" id="page_9">
+                <div class="page-title">IX. Client-Submitted Questions (Deep Dive Only)</div>
+                <p class="page-desc">Address specific questions submitted by the client. Complete during visits 3-5.</p>
+
+                <div class="form-group">
+                    <label>Client Question 1:</label>
+                    <p style="background: #f1f5f9; padding: 10px; border-radius: 4px; font-size: 0.9rem;">[Pre-populated
+                        from client intake form]</p>
+                    <label for="client_response_1" style="margin-top: 15px;">Scout Response (200-word limit)</label>
+                    <textarea id="client_response_1" name="client_response_1" rows="4" maxlength="1200"></textarea>
+                    <label style="margin-top: 10px;">Supporting Photos (up to 3)</label>
+                    <input type="file" name="client_photos_1" accept="image/*" multiple>
+                </div>
+
+                <div class="form-group" style="margin-top: 40px;">
+                    <label>Client Question 2:</label>
+                    <p style="background: #f1f5f9; padding: 10px; border-radius: 4px; font-size: 0.9rem;">[Pre-populated
+                        from client intake form]</p>
+                    <label for="client_response_2" style="margin-top: 15px;">Scout Response (200-word limit)</label>
+                    <textarea id="client_response_2" name="client_response_2" rows="4" maxlength="1200"></textarea>
+                    <label style="margin-top: 10px;">Supporting Photos (up to 3)</label>
+                    <input type="file" name="client_photos_2" accept="image/*" multiple>
+                </div>
+            </div>
+
+            <!-- Page 10: Infrastructure (Conditional) -->
+            <div class="page" id="page_10">
+                <div class="page-title">X. Infrastructure Documentation (Deep Dive Only)</div>
+                <div class="form-group">
+                    <label>Have you already completed infrastructure documentation for this property? *</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="infra_completed" value="No - complete now"
+                                onchange="toggleInfraFields()" required> No - complete now</label>
+                        <label class="radio-item"><input type="radio" name="infra_completed"
+                                value="Yes - skip this section" onchange="toggleInfraFields()"> Yes - skip this
+                            section</label>
+                    </div>
+                </div>
+
+                <div id="infra_fields" class="hidden">
+                    <div class="form-group">
+                        <label>Network Performance Audit *</label>
+                        <p class="field-description">Run a live connectivity test to verify local infrastructure.</p>
+
+                        <div class="network-audit-card">
+                            <div class="network-stat">
+                                <span class="stat-label">Latency (Ping)</span>
+                                <span class="stat-value" id="net-latency">-- ms</span>
+                            </div>
+                            <div class="network-stat">
+                                <span class="stat-label">Download Speed</span>
+                                <span class="stat-value" id="net-speed">-- Mbps</span>
+                            </div>
+                            <div class="speed-progress-bg">
+                                <div id="net-progress" class="speed-progress-fill"></div>
+                            </div>
+                            <button type="button" class="btn btn-next" style="width: 100%;" id="start-net-btn"
+                                onclick="runNetworkAudit()">Run Performance Test</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cell_carrier_1">Cell Carrier 1 (your carrier)</label>
+                        <input type="text" id="cell_carrier_1" name="cell_carrier_1" placeholder="Verizon">
+                    </div>
+                    <div class="form-group">
+                        <label for="cell_signal_1">Signal Strength (Carrier 1)</label>
+                        <select id="cell_signal_1" name="cell_signal_1">
+                            <option value="">Auto-populated</option>
+                            <option value="0 bars">0 bars</option>
+                            <option value="1 bar">1 bar</option>
+                            <option value="2 bars">2 bars</option>
+                            <option value="3 bars">3 bars</option>
+                            <option value="4 bars">4 bars</option>
+                            <option value="5 bars">5 bars</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pavement_condition">Street Pavement Condition</label>
+                        <select id="pavement_condition" name="pavement_condition">
+                            <option value="Excellent">Excellent</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                            <option value="Poor">Poor</option>
+                            <option value="Severely deteriorated">Severely deteriorated</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="sidewalk_condition">Sidewalk Condition</label>
+                        <select id="sidewalk_condition" name="sidewalk_condition">
+                            <option value="Excellent">Excellent</option>
+                            <option value="Good">Good</option>
+                            <option value="Fair">Fair</option>
+                            <option value="Poor">Poor</option>
+                            <option value="Not present">Not present</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page 11: Submit -->
+            <div class="page" id="page_11">
+                <div class="page-title">XI. Review & Submit</div>
+                <div class="form-group">
+                    <label>Scout Certification *</label>
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="scout_certification" required>
+                        I certify that all observations recorded in this form are factual and based on my in-person
+                        visit...
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="additional_notes">Additional Notes (optional)</label>
+                    <textarea id="additional_notes" name="additional_notes" rows="4" maxlength="500"></textarea>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="navigation">
+                <button type="button" class="btn btn-prev" id="prev-btn" onclick="changePage(-1)" disabled>Back</button>
+                <div style="display: flex; gap: 10px;">
+                    <button type="button" class="btn btn-preview" id="preview-btn">Preview APA</button>
+                    <button type="button" class="btn btn-next" id="next-btn" onclick="changePage(1)">Next</button>
+                    <button type="submit" class="btn btn-submit hidden" id="submit-btn">Submit Report</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Modal for APA Preview -->
+    <div id="preview-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="apa-header">
+                <h2>Field Observation Report: <span id="preview-addr">[Address]</span></h2>
+                <p>Prepared for Vicus Real Estate Due Diligence Group</p>
+                <p>Consultant: <span id="preview-scout">[Scout Name]</span></p>
+                <p>Date: <span id="preview-date">[Date]</span> | Tier: <span id="preview-tier">[Tier]</span></p>
+            </div>
+            <div class="apa-body" id="preview-body">
+                <!-- Content injected by JS -->
+            </div>
+            <div style="margin-top: 40px; text-align: center;">
+                <button class="btn btn-prev" onclick="closeModal()">Close Preview</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 1;
+        const totalPages = 11;
+
+        function updateProgress() {
+            const fill = document.getElementById('progress-fill');
+            fill.style.width = ((currentPage - 1) / (totalPages - 1) * 100) + '%';
+        }
+
+        function changePage(delta) {
+            const currentEl = document.getElementById('page_' + currentPage);
+
+            // Validation for required fields on current page before moving next
+            if (delta > 0) {
+                let isValid = true;
+                let firstInvalid = null;
+
+                // Clear existing errors
+                currentEl.querySelectorAll('.error-msg').forEach(msg => msg.remove());
+                currentEl.querySelectorAll('.error-state').forEach(el => el.classList.remove('error-state'));
+
+                const inputs = currentEl.querySelectorAll('input[required], select[required], textarea[required]');
+                for (let input of inputs) {
+                    if (input.offsetParent !== null) {
+                        let fieldValid = true;
+                        if (input.type === 'checkbox' || input.type === 'radio') {
+                            const group = currentEl.querySelectorAll(`input[name="${input.name}"]`);
+                            const checked = Array.from(group).some(i => i.checked);
+                            if (!checked) fieldValid = false;
+                        } else if (!input.value.trim()) {
+                            fieldValid = false;
+                        }
+
+                        if (!fieldValid) {
+                            isValid = false;
+                            input.classList.add('error-state');
+
+                            // Add error message if not already there
+                            const group = input.closest('.form-group');
+                            if (!group.querySelector('.error-msg')) {
+                                const msg = document.createElement('span');
+                                msg.className = 'error-msg';
+                                msg.textContent = 'This field is required.';
+                                group.appendChild(msg);
+                            }
+
+                            if (!firstInvalid) firstInvalid = input;
+                        }
+                    }
+                }
+
+                if (!isValid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    return;
+                }
+            }
+
+            currentEl.classList.remove('active');
+            currentPage += delta;
+
+            // Handle Conditional Page Skipping
+            if (shouldSkipPage(currentPage)) {
+                changePage(delta);
+                return;
+            }
+
+            document.getElementById('page_' + currentPage).classList.add('active');
+
+            // Button States
+            document.getElementById('prev-btn').disabled = (currentPage === 1);
+            if (currentPage === totalPages) {
+                document.getElementById('next-btn').classList.add('hidden');
+                document.getElementById('submit-btn').classList.remove('hidden');
+            } else {
+                document.getElementById('next-btn').classList.remove('hidden');
+                document.getElementById('submit-btn').classList.add('hidden');
+            }
+
+            updateProgress();
+            window.scrollTo(0, 0);
+        }
+
+        function shouldSkipPage(pg) {
+            const tier = document.getElementById('tier_level').value;
+            const visit = document.getElementById('visit_number').value;
+
+            // Page 8: Comparative Analysis (Standard Tier - Visit 3 Only)
+            if (pg === 8) {
+                return !(tier.includes('Standard') && visit === '3');
+            }
+            // Page 9: Client Questions (Deep Dive - Visits 3, 4, 5)
+            if (pg === 9) {
+                return !(tier.includes('Deep Dive') && ['3', '4', '5'].includes(visit));
+            }
+            // Page 10: Infrastructure (Deep Dive Only)
+            if (pg === 10) {
+                return !tier.includes('Deep Dive');
+            }
+            return false;
+        }
+
+        function updateVisitNumbers() {
+            const tier = document.getElementById('tier_level').value;
+            const visitSelect = document.getElementById('visit_number');
+            visitSelect.innerHTML = '<option value="">Select Visit Number</option>';
+
+            let max = 1;
+            if (tier.includes('Standard')) max = 3;
+            else if (tier.includes('Deep Dive')) max = 5;
+
+            for (let i = 1; i <= max; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = i;
+                visitSelect.appendChild(opt);
+            }
+
+            // Also show/hide ambient media requirement note
+            const mediaReq = document.getElementById('ambient_media');
+            if (tier.includes('Snapshot')) {
+                mediaReq.required = false;
+            } else {
+                mediaReq.required = true;
+            }
+        }
+
+        function toggleNoiseOther() {
+            const otherChecked = Array.from(document.querySelectorAll('input[name="noise_sources"]'))
+                .some(cb => cb.value === 'Other' && cb.checked);
+            document.getElementById('noise_other_container').classList.toggle('hidden', !otherChecked);
+        }
+
+        function calculateParkingRate() {
+            const total = parseFloat(document.getElementById('parking_total_spaces').value);
+            const occupied = parseFloat(document.getElementById('parking_occupied_spaces').value);
+            const rateInput = document.getElementById('parking_occupancy_rate');
+
+            if (total > 0 && occupied >= 0) {
+                rateInput.value = Math.round((occupied / total) * 100);
+            } else {
+                rateInput.value = '';
+            }
+        }
+
+        function toggleDrivewaySpaces() {
+            const val = document.querySelector('input[name="property_driveway"]:checked')?.value;
+            document.getElementById('driveway_spaces_container').classList.toggle('hidden', val !== 'Yes');
+        }
+
+        function toggleLightingFields() {
+            const val = document.querySelector('input[name="lighting_applicable"]:checked')?.value;
+            document.getElementById('lighting_fields').classList.toggle('hidden', val !== 'Yes');
+        }
+
+        function toggleNotableDetails() {
+            const anyChecked = Array.from(document.querySelectorAll('input[name="notable_conditions"]'))
+                .some(cb => cb.checked);
+            document.getElementById('notable_details_container').classList.toggle('hidden', !anyChecked);
+        }
+
+        function toggleInfraFields() {
+            const val = document.querySelector('input[name="infra_completed"]:checked')?.value;
+            document.getElementById('infra_fields').classList.toggle('hidden', val !== 'No - complete now');
+        }
+
+        // Preview Logic
+        document.getElementById('preview-btn').onclick = function () {
+            const formData = new FormData(document.getElementById('scout-form'));
+            const d = Object.fromEntries(formData.entries());
+
+            document.getElementById('preview-addr').textContent = d.property_address || '[Address]';
+            document.getElementById('preview-scout').textContent = d.scout_name || '[Scout]';
+            document.getElementById('preview-date').textContent = new Date().toLocaleDateString();
+            document.getElementById('preview-tier').textContent = d.tier_level;
+
+            let html = `
+                <h4>1. Project Summary</h4>
+                <p>The subject property located at ${d.property_address} was observed during the ${d.observation_window} window. Weather conditions were noted as ${d.weather_conditions} at ${d.temperature}°F.</p>
+                
+                <h4>2. Acoustic Environment</h4>
+                <p>Baseline ambient noise was measured at ${d.noise_baseline_db} dB, with transient peaks of ${d.noise_peak_db} dB. Traffic throughput was noted at ${d.traffic_volume} vehicles per 10-minute interval.</p>
+                
+                <h4>3. Parking & Infrastructure</h4>
+                <p>Street parking occupancy was recorded at ${d.parking_occupancy_rate || 0}%. Observed driveway access: ${d.property_driveway}.</p>
+                
+                <h4>4. Qualitative Narrative</h4>
+                <p>${d.general_character || 'No character description provided.'}</p>
+            `;
+
+            if (d.tier_level.includes('Standard') && d.visit_number === '3') {
+                html += `<h4>5. Comparative Analysis</h4><p>${d.comparative_noise}</p>`;
+            }
+
+            document.getElementById('preview-body').innerHTML = html;
+            document.getElementById('preview-modal').style.display = 'flex';
+        };
+
+        function closeModal() { document.getElementById('preview-modal').style.display = 'none'; }
+
+        // Real-time validation clearing
+        document.getElementById('scout-form').addEventListener('input', function (e) {
+            if (e.target.classList.contains('error-state')) {
+                const group = e.target.closest('.form-group');
+                if (e.target.value.trim()) {
+                    e.target.classList.remove('error-state');
+                    const msg = group.querySelector('.error-msg');
+                    if (msg) msg.remove();
+                }
+            }
+        });
+
+        document.getElementById('scout-form').addEventListener('change', function (e) {
+            const group = e.target.closest('.form-group');
+            if (!group) return;
+
+            const errorFields = group.querySelectorAll('.error-state');
+            if (errorFields.length > 0) {
+                let isValid = false;
+                if (e.target.type === 'radio' || e.target.type === 'checkbox') {
+                    isValid = Array.from(group.querySelectorAll(`input[name="${e.target.name}"]`)).some(i => i.checked);
+                } else if (e.target.tagName === 'SELECT' || e.target.type === 'file') {
+                    isValid = !!e.target.value;
+                }
+
+                if (isValid) {
+                    errorFields.forEach(el => el.classList.remove('error-state'));
+                    group.querySelectorAll('.error-msg').forEach(msg => msg.remove());
+                }
+            }
+        });
+
+        // Geofencing Logic
+        let targetLat = null;
+        let targetLng = null;
+
+        // Initialize targets from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        targetLat = parseFloat(urlParams.get('target_lat'));
+        targetLng = parseFloat(urlParams.get('target_lng'));
+
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371e3; // Earth's radius in meters
+            const φ1 = lat1 * Math.PI / 180;
+            const φ2 = lat2 * Math.PI / 180;
+            const Δφ = (lat2 - lat1) * Math.PI / 180;
+            const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+                Math.cos(φ1) * Math.cos(φ2) *
+                Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+            return R * c; // Distance in meters
+        }
+
+        function verifyLocation() {
+            const statusText = document.getElementById('status-text');
+            const statusDot = document.getElementById('status-dot');
+            const overrideBox = document.getElementById('location-override');
+            const verifyBtn = document.getElementById('verify-location-btn');
+
+            if (!targetLat || !targetLng) {
+                alert("Target coordinates missing. Geofencing disabled for this session.");
+                markVerified("Manual - No Target", true);
+                return;
+            }
+
+            statusText.textContent = "Acquiring GPS signal...";
+            verifyBtn.disabled = true;
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const dist = calculateDistance(
+                        position.coords.latitude,
+                        position.coords.longitude,
+                        targetLat,
+                        targetLng
+                    );
+
+                    const isWithinRange = dist <= 30.48; // 100 feet in meters
+
+                    if (isWithinRange) {
+                        statusText.textContent = `Verified: Within ${Math.round(dist * 3.281)}ft of target.`;
+                        statusDot.className = "status-dot success";
+                        markVerified("GPS", true);
+                        overrideBox.style.display = 'none';
+                    } else {
+                        statusText.textContent = `Error: ${Math.round(dist * 3.281)}ft from target (Limit 100ft).`;
+                        statusDot.className = "status-dot error";
+                        markVerified("GPS - Out of Range", false);
+                        overrideBox.style.display = 'block';
+                    }
+                    verifyBtn.disabled = false;
+                },
+                (error) => {
+                    statusText.textContent = "Error: GPS signal unavailable.";
+                    statusDot.className = "status-dot error";
+                    markVerified("GPS - Failed", false);
+                    overrideBox.style.display = 'block';
+                    verifyBtn.disabled = false;
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        function markVerified(method, isValid) {
+            document.getElementById('location_verified').value = isValid;
+            document.getElementById('verification_method').value = method;
+        }
+
+        function toggleOverrideReason() {
+            const isChecked = document.getElementById('gps_override_toggle').checked;
+            document.getElementById('override_reason_container').classList.toggle('hidden', !isChecked);
+            if (isChecked) {
+                markVerified("Manual Override", true);
+            } else {
+                markVerified("GPS - Corrected", false);
+            }
+        }
+
+        // Decibel Meter Logic
+        let audioCtx = null;
+        let analyser = null;
+        let stream = null;
+        let isMeasuring = false;
+
+        async function startNoiseMeasurement() {
+            if (isMeasuring) return;
+
+            const startBtn = document.getElementById('start-noise-btn');
+            const timerText = document.getElementById('noise-timer');
+            const baselineInput = document.getElementById('noise_baseline_db');
+            const peakInput = document.getElementById('noise_peak_db');
+
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                analyser = audioCtx.createAnalyser();
+                const source = audioCtx.createMediaStreamSource(stream);
+                source.connect(analyser);
+                analyser.fftSize = 256;
+
+                isMeasuring = true;
+                startBtn.disabled = true;
+                startBtn.textContent = "Measuring...";
+
+                const bufferLength = analyser.frequencyBinCount;
+                const dataArray = new Uint8Array(bufferLength);
+
+                let samples = [];
+                let maxDb = 0;
+                let startTime = Date.now();
+                const duration = 30000; // 30 seconds
+
+                function updateMeter() {
+                    if (!isMeasuring) return;
+
+                    analyser.getByteFrequencyData(dataArray);
+                    let sum = 0;
+                    for (let i = 0; i < bufferLength; i++) {
+                        sum += dataArray[i];
+                    }
+                    let average = sum / bufferLength;
+                    let db = Math.round((average / 255) * 100); // Rough approximation for demo
+
+                    document.getElementById('live-db').textContent = db;
+                    document.getElementById('meter-fill').style.width = Math.min(db, 100) + '%';
+
+                    samples.push(db);
+                    if (db > maxDb) maxDb = db;
+
+                    let elapsed = Date.now() - startTime;
+                    let remaining = Math.max(0, Math.ceil((duration - elapsed) / 1000));
+                    timerText.textContent = `Time Remaining: ${remaining}s`;
+
+                    if (elapsed < duration) {
+                        requestAnimationFrame(updateMeter);
+                    } else {
+                        stopMeasurement(samples, maxDb);
+                    }
+                }
+
+                updateMeter();
+
+            } catch (err) {
+                alert("Microphone access denied or unavailable.");
+                startBtn.disabled = false;
+            }
+        }
+
+        function stopMeasurement(samples, max) {
+            isMeasuring = false;
+            const avg = Math.round(samples.reduce((a, b) => a + b, 0) / samples.length);
+
+            document.getElementById('noise_baseline_db').value = avg;
+            document.getElementById('noise_peak_db').value = max;
+            document.getElementById('noise-timer').textContent = "Measurement Complete.";
+            document.getElementById('start-noise-btn').disabled = false;
+            document.getElementById('start-noise-btn').textContent = "Retake Measurement";
+
+            if (stream) stream.getTracks().forEach(track => track.stop());
+            if (audioCtx) audioCtx.close();
+        }
+
+        // Network Audit Logic
+        async function runNetworkAudit() {
+            const btn = document.getElementById('start-net-btn');
+            const latencyEl = document.getElementById('net-latency');
+            const speedEl = document.getElementById('net-speed');
+            const progress = document.getElementById('net-progress');
+            const signalSelect = document.getElementById('cell_signal_1');
+
+            btn.disabled = true;
+            btn.textContent = "Testing...";
+            progress.style.width = "10%";
+
+            try {
+                // 1. Latency Test (Ping)
+                const startPing = Date.now();
+                await fetch('https://www.google.com/favicon.ico', { mode: 'no-cors', cache: 'no-store' });
+                const latency = Date.now() - startPing;
+                latencyEl.textContent = `${latency} ms`;
+                progress.style.width = "40%";
+
+                // 2. Download Speed Test (~2MB file) - Using a reliable large-ish asset
+                const startDownload = Date.now();
+                const response = await fetch('https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js', { cache: 'no-store' });
+                const reader = response.body.getReader();
+                let loaded = 0;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    loaded += value.length;
+                    progress.style.width = (40 + (loaded / 100000) * 60) + "%"; // Rough progress
+                }
+
+                const endDownload = Date.now();
+                const duration = (endDownload - startDownload) / 1000;
+                const speedMbps = ((loaded * 8) / (duration * 1000000)).toFixed(2);
+
+                speedEl.textContent = `${speedMbps} Mbps`;
+                progress.style.width = "100%";
+
+                // Auto-populate Signal Strength based on Latency
+                if (latency < 50) signalSelect.value = "5 bars";
+                else if (latency < 100) signalSelect.value = "4 bars";
+                else if (latency < 200) signalSelect.value = "3 bars";
+                else if (latency < 500) signalSelect.value = "2 bars";
+                else signalSelect.value = "1 bar";
+
+                btn.textContent = "Test Complete";
+            } catch (err) {
+                latencyEl.textContent = "Failed";
+                speedEl.textContent = "Failed";
+                btn.disabled = false;
+                btn.textContent = "Retry Test";
+            }
+        }
+
+        // Start
+        updateProgress();
+    </script>
+</body>
+
+</html>
