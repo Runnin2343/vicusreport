@@ -844,18 +844,9 @@
 
             <!-- Page 10: Infrastructure (Conditional) -->
             <div class="page" id="page_10">
-                <div class="form-group">
-                    <label>Is infrastructure documentation required for this visit? *</label>
-                    <div class="radio-group">
-                        <label class="radio-item"><input type="radio" name="infra_required" value="Yes - perform now"
-                                onchange="toggleInfraFields()" required> Yes - perform now</label>
-                        <label class="radio-item"><input type="radio" name="infra_required"
-                                value="No - already completed/not required" onchange="toggleInfraFields()"> No - already
-                            completed/not required</label>
-                    </div>
-                </div>
+                <div class="page-title">X. Infrastructure Documentation (Deep Dive Only)</div>
 
-                <div id="infra_fields" class="hidden">
+                <div id="infra_fields">
                     <div class="form-group">
                         <label>Network Performance Audit *</label>
                         <p class="field-description">Run a live connectivity test to verify local infrastructure.</p>
@@ -1135,10 +1126,6 @@
             document.getElementById('notable_details_container').classList.toggle('hidden', !anyChecked);
         }
 
-        function toggleInfraFields() {
-            const val = document.querySelector('input[name="infra_required"]:checked')?.value;
-            document.getElementById('infra_fields').classList.toggle('hidden', val !== 'Yes - perform now');
-        }
 
         // Preview Logic
         document.getElementById('preview-btn').onclick = function () {
